@@ -1,16 +1,16 @@
+from datetime import datetime
+import mysql.connector
 import telebot
 import os
-import mysql.connector
-from datetime import datetime
 
 # Inicializar bot
 bot = telebot.TeleBot(os.environ.get('bot_token'))
 
 # Conexión con el servidor MySQL Server
 conn= mysql.connector.connect(
-    host=os.environ.get('host'),
-    user=os.environ.get('user'),
-    passwd=os.environ.get('mysqlpass'),
+    host=os.environ.get('db_host'),
+    user=os.environ.get('db_user'),
+    passwd=os.environ.get('db_passwd'),
     db='adobobot'
 )
 
