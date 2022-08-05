@@ -21,7 +21,7 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
-	bot.reply_to(message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/about - Sobre mí')
+	bot.reply_to(message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
 
 @bot.message_handler(commands=['about'])
 def send_about(message):
@@ -30,14 +30,22 @@ def send_about(message):
 @bot.message_handler(commands=['top_user'])
 def top_user(message):
 	cursor = conn.cursor()
-	cursor.execute("SELECT Username, COUNT(*) AS Total FROM chat_logs GROUP BY Username ORDER BY Total DESC LIMIT 1")
+	cursor.execute("SELECT Username, COUNT(*) AS Total FROM chat_log GROUP BY Username ORDER BY Total DESC LIMIT 1")
 	result=cursor.fetchall()
 	bot.reply_to(message, result)
+
+@bot.message_handler(commands=['metrics'])
+def metric_users(message):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Username, COUNT(UserID) FROM chat_log GROUP BY UserID")
+	result = cursor.fetchall()
+	for x in result:
+		bot.reply_to(message, x)
 
 @bot.message_handler(content_types=['text'])
 def store_chat(message):
 	cursor = conn.cursor()
-	query = "INSERT INTO chat_logs (UserID, Username, Date, ChatID, Text) VALUES (%s, %s, %s, %s, %s)"
+	query = "INSERT INTO chat_log (UserID, Username, Date, ChatID, Text) VALUES (%s, %s, %s, %s, %s)"
 	ts=(datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
 	values = (message.from_user.id, message.from_user.username, ts, message.chat.id, message.text)
 	cursor.execute(query, values)
