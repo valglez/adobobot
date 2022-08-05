@@ -4,13 +4,13 @@ import telebot
 import os
 
 # Inicializar bot
-bot = telebot.TeleBot(os.environ.get('bot_token'))
+bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
 
 # Conexión con el servidor MySQL Server
 conn= mysql.connector.connect(
-    host=os.environ.get('db_host'),
-    user=os.environ.get('db_user'),
-    passwd=os.environ.get('db_passwd'),
+    host=os.environ.get('DB_HOST'),
+    user=os.environ.get('DB_USER'),
+    passwd=os.environ.get('DB_PASSWD'),
     db='adobobot'
 )
 
