@@ -6,5 +6,5 @@ WORKDIR /app
 RUN pip3 install pyTelegramBotAPI mysql-connector-python
 # Copia ficheros en la imagen del contenedor
 COPY adobobot.py .
-# Comandos que se ejecutan al arrancar al container
+# Comandos que se ejecutan al arrancar el contenedor"
 CMD [ "python3", "adobobot.py"]
