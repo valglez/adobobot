@@ -16,16 +16,25 @@ conn= mysql.connector.connect(
 
 # Definición de handlers
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-	bot.reply_to(message, 'Hola, mi nombre es adobobot. Escribe /help para mostrarte los comandos disponibles.')
+def top_user(message):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Definition FROM bot_commands WHERE Command = 'start'")
+	result=cursor.fetchall()
+	bot.reply_to(message, result)
 
 @bot.message_handler(commands=['help'])
-def send_help(message):
-	bot.reply_to(message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
+def top_user(message):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Definition FROM bot_commands WHERE Command = 'help'")
+	result=cursor.fetchall()
+	bot.reply_to(message, result)
 
 @bot.message_handler(commands=['about'])
-def send_about(message):
-	bot.reply_to(message, 'Developed by valglez @ https://github.com/valglez')
+def top_user(message):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Definition FROM bot_commands WHERE Command = 'about'")
+	result=cursor.fetchall()
+	bot.reply_to(message, result)
 
 @bot.message_handler(commands=['top_user'])
 def top_user(message):
@@ -39,8 +48,7 @@ def metric_users(message):
 	cursor = conn.cursor()
 	cursor.execute("SELECT Username, COUNT(UserID) FROM chat_log GROUP BY UserID")
 	result = cursor.fetchall()
-	for x in result:
-		bot.reply_to(message, x)
+	bot.reply_to(message, result)
 
 @bot.message_handler(content_types=['text'])
 def store_chat(message):
