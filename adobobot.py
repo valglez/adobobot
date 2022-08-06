@@ -16,25 +16,16 @@ conn= mysql.connector.connect(
 
 # Definición de handlers
 @bot.message_handler(commands=['start'])
-def top_user(message):
-	cursor = conn.cursor()
-	cursor.execute("SELECT Definition FROM bot_commands WHERE Command = 'start'")
-	result=cursor.fetchall()
-	bot.reply_to(message, result)
+def send_start(message):
+	bot.reply_to(message, 'Hola, mi nombre es adobobot. Escribe /help para mostrarte los comandos disponibles.')
 
 @bot.message_handler(commands=['help'])
-def top_user(message):
-	cursor = conn.cursor()
-	cursor.execute("SELECT Definition FROM bot_commands WHERE Command = 'help'")
-	result=cursor.fetchall()
-	bot.reply_to(message, result)
+def send_help(message):
+	bot.reply_to(message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
 
 @bot.message_handler(commands=['about'])
-def top_user(message):
-	cursor = conn.cursor()
-	cursor.execute("SELECT Definition FROM bot_commands WHERE Command = 'about'")
-	result=cursor.fetchall()
-	bot.reply_to(message, result)
+def about_bot(message):
+	bot.reply_to(message, 'Developed by valglez @ https://github.com/valglez')
 
 @bot.message_handler(commands=['top_user'])
 def top_user(message):
