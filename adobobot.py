@@ -35,7 +35,7 @@ def top_user(message):
 	response = ""
 	for row in result:
 		user = row[0] or "Anonymous"
-	response += "El usuario " + user + " ha sido el usuario con más mensajes con un total de " + str(row[1]) + " mensajes. \n"
+	response += "El usuario " + user + " ha sido el usuario más activo con un total de " + str(row[1]) + " mensajes. \n"
 	bot.reply_to(message, response)
 
 @bot.message_handler(commands=['metrics'])
@@ -48,7 +48,7 @@ def metric_users(message):
 		user = row[0] or "Anonymous"
 		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes. \n"
 	bot.reply_to(message, response)
-		
+
 @bot.message_handler(content_types=['text'])
 def store_chat(message):
 	cursor = conn.cursor()
