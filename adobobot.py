@@ -39,8 +39,12 @@ def metric_users(message):
 	cursor = conn.cursor()
 	cursor.execute("SELECT Username, COUNT(UserID) FROM chat_log GROUP BY UserID")
 	result = cursor.fetchall()
-	bot.reply_to(message, result)
-
+	response = ""
+	for row in result:
+		user = row[0] or "Anonymous"
+		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes \n"
+	bot.reply_to(message, response)
+		
 @bot.message_handler(content_types=['text'])
 def store_chat(message):
 	cursor = conn.cursor()
