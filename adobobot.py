@@ -32,7 +32,11 @@ def top_user(message):
 	cursor = conn.cursor()
 	cursor.execute("SELECT Username, COUNT(*) AS Total FROM chat_log GROUP BY Username ORDER BY Total DESC LIMIT 1")
 	result=cursor.fetchall()
-	bot.reply_to(message, result)
+	response = ""
+	for row in result:
+		user = row[0] or "Anonymous"
+	response += "El usuario " + user + " ha sido el usuario con más mensajes con un total de " + str(row[1]) + " mensajes. \n"
+	bot.reply_to(message, response)
 
 @bot.message_handler(commands=['metrics'])
 def metric_users(message):
@@ -42,13 +46,13 @@ def metric_users(message):
 	response = ""
 	for row in result:
 		user = row[0] or "Anonymous"
-		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes \n"
+		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes. \n"
 	bot.reply_to(message, response)
 		
 @bot.message_handler(content_types=['text'])
 def store_chat(message):
 	cursor = conn.cursor()
-	query = "INSERT INTO chat_log (UserID, Username, Date, ChatID, Text) VALUES (%s, %s, %s, %s, %s)"
+	query = "INSERT INTO chat_log (UserID, Username, Date, ChatID, Text) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE UserID=VALUES(UserID), Username=VALUES(Username), Date=VALUES(Date), ChatID=VALUES(ChatID), Text=VALUES(Text)"
 	ts=(datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
 	values = (message.from_user.id, message.from_user.username, ts, message.chat.id, message.text)
 	cursor.execute(query, values)
