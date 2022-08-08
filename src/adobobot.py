@@ -28,14 +28,14 @@ def get_metrics_by_chat(message):
 		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes. \n"
 	return response
 
-def exec_select_query(query):
+def exec_query(query):
 	cursor = conn.cursor()
 	cursor.execute(query)
 	result=cursor.fetchall()
 	return result
 
 def get_top_user_by_chat(message):
-	result = exec_select_query(f"SELECT Username, COUNT(*) AS Total FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY Username ORDER BY Total DESC LIMIT 1")
+	result = exec_query(f"SELECT Username, COUNT(*) AS Total FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY Username ORDER BY Total DESC LIMIT 1")
 	response=""
 	for row in result:
 		user = row[0] or "Anonymous"
