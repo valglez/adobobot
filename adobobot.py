@@ -11,7 +11,7 @@ conn= mysql.connector.connect(
     host=os.environ.get('DB_HOST'),
     user=os.environ.get('DB_USER'),
     passwd=os.environ.get('DB_PASSWD'),
-    db='adobobot'
+    db=os.environ.get('DB_DBNAME')
 )
 
 # Definición de handlers
