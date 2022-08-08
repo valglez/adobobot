@@ -14,6 +14,10 @@ conn= mysql.connector.connect(
     db=os.environ.get('DB_DBNAME')
 )
 
+# Definición de métodos
+def get_chatid(message):
+	return message.chat.id
+
 # Definición de handlers
 @bot.message_handler(commands=['start'])
 def send_start(message):
@@ -30,18 +34,18 @@ def about_bot(message):
 @bot.message_handler(commands=['top_user'])
 def top_user(message):
 	cursor = conn.cursor()
-	cursor.execute("SELECT Username, COUNT(*) AS Total FROM chat_log GROUP BY Username ORDER BY Total DESC LIMIT 1")
+	cursor.execute(f"SELECT Username, COUNT(*) AS Total FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY Username ORDER BY Total DESC LIMIT 1")
 	result=cursor.fetchall()
-	response = ""
+	response=""
 	for row in result:
 		user = row[0] or "Anonymous"
-	response += "El usuario " + user + " ha sido el usuario más activo con un total de " + str(row[1]) + " mensajes. \n"
+		response += "El usuario " + user + " ha sido el usuario más activo con un total de " + str(row[1]) + " mensajes. \n"
 	bot.reply_to(message, response)
 
 @bot.message_handler(commands=['metrics'])
 def metric_users(message):
 	cursor = conn.cursor()
-	cursor.execute("SELECT Username, COUNT(UserID) FROM chat_log GROUP BY UserID")
+	cursor.execute(f"SELECT Username, COUNT(UserID) FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY UserID")
 	result = cursor.fetchall()
 	response = ""
 	for row in result:
