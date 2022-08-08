@@ -18,6 +18,38 @@ conn= mysql.connector.connect(
 def get_chatid(message):
 	return message.chat.id
 
+def get_metrics_by_chat(message):
+	cursor = conn.cursor()
+	cursor.execute(f"SELECT Username, COUNT(UserID) FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY UserID")
+	result = cursor.fetchall()
+	response = ""
+	for row in result:
+		user = row[0] or "Anonymous"
+		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes. \n"
+	return response
+
+def exec_select_query(query):
+	cursor = conn.cursor()
+	cursor.execute(query)
+	result=cursor.fetchall()
+	return result
+
+def get_top_user_by_chat(message):
+	result = exec_select_query(f"SELECT Username, COUNT(*) AS Total FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY Username ORDER BY Total DESC LIMIT 1")
+	response=""
+	for row in result:
+		user = row[0] or "Anonymous"
+		response += "El usuario " + user + " ha sido el usuario más activo con un total de " + str(row[1]) + " mensajes. \n"
+	return response
+
+def insert_message_query(message):
+	cursor = conn.cursor()
+	query = "INSERT INTO chat_log (UserID, Username, Date, ChatID, Text) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE UserID=VALUES(UserID), Username=VALUES(Username), Date=VALUES(Date), ChatID=VALUES(ChatID), Text=VALUES(Text)"
+	ts=(datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
+	values = (message.from_user.id, message.from_user.username, ts, message.chat.id, message.text)
+	cursor.execute(query, values)
+	conn.commit()
+
 # Definición de handlers
 @bot.message_handler(commands=['start'])
 def send_start(message):
@@ -33,33 +65,14 @@ def about_bot(message):
 
 @bot.message_handler(commands=['top_user'])
 def top_user(message):
-	cursor = conn.cursor()
-	cursor.execute(f"SELECT Username, COUNT(*) AS Total FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY Username ORDER BY Total DESC LIMIT 1")
-	result=cursor.fetchall()
-	response=""
-	for row in result:
-		user = row[0] or "Anonymous"
-		response += "El usuario " + user + " ha sido el usuario más activo con un total de " + str(row[1]) + " mensajes. \n"
-	bot.reply_to(message, response)
+	bot.reply_to(message, get_top_user_by_chat(message))
 
 @bot.message_handler(commands=['metrics'])
 def metric_users(message):
-	cursor = conn.cursor()
-	cursor.execute(f"SELECT Username, COUNT(UserID) FROM chat_log WHERE ChatID = {get_chatid(message)} GROUP BY UserID")
-	result = cursor.fetchall()
-	response = ""
-	for row in result:
-		user = row[0] or "Anonymous"
-		response += "El usuario " + user + " ha enviado " + str(row[1]) + " mensajes. \n"
-	bot.reply_to(message, response)
+  bot.reply_to(message, get_metrics_by_chat(message))
 
 @bot.message_handler(content_types=['text'])
 def store_chat(message):
-	cursor = conn.cursor()
-	query = "INSERT INTO chat_log (UserID, Username, Date, ChatID, Text) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE UserID=VALUES(UserID), Username=VALUES(Username), Date=VALUES(Date), ChatID=VALUES(ChatID), Text=VALUES(Text)"
-	ts=(datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
-	values = (message.from_user.id, message.from_user.username, ts, message.chat.id, message.text)
-	cursor.execute(query, values)
-	conn.commit()
+	insert_message_query(message)
 
 bot.infinity_polling()
