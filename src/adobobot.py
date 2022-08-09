@@ -15,22 +15,31 @@ coll = db[os.environ.get('DB_COLL')]
 def get_chatid(message):
 	return message.chat.id
 
-def count_chats_for_user(message):
-    result = coll.count_documents({"ChatID": get_chatid(message)})
-    return result
+def count_chats_for_user(chat_id,user_id):
+    return coll.count_documents({"ChatID": chat_id, "UserID": user_id})
+
+def get_username_by_id(chat_id,user_id):
+    result = coll.find({"ChatID": chat_id, "UserID": user_id}).limit(1)
+    return result[0]["Username"]
+
+
 
 def get_metrics_by_chat(message):
-    results = coll.find({"ChatID": get_chatid(message)})
+    users_id = coll.distinct("UserID", {"ChatID": get_chatid(message)})
     response = ""
-    for result in results:
-        response += "El usuario " + result["Username"] + " ha enviado " + str(count_chats_for_user(message)) + " mensajes. \n"
+    for id in users_id:
+        usernames = get_username_by_id(get_chatid(message), id)
+        users_logs = str(count_chats_for_user(get_chatid(message), id))
+        response += "El usuario " + usernames + " ha enviado " + users_logs + " mensajes. \n"
     return response
 
 def get_top_user_by_chat(message):
-    results = coll.find({"ChatID": get_chatid(message)})
+    users_id = coll.distinct("UserID", {"ChatID": get_chatid(message)})
     response = ""
-    for result in results:
-        response += "El usuario " + result["Username"] + " ha sido el usuario más activo con " + str(count_chats_for_user(message)) + " mensajes. \n"
+    for id in users_id:
+        usernames = get_username_by_id(get_chatid(message), id)
+        users_logs = str(count_chats_for_user(get_chatid(message), id))
+        response += "El usuario " + usernames + " ha sido el usuario más activo con " + users_logs + " mensajes. \n"
     return response
 
 def insert_message_query(message):
