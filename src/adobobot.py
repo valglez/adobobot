@@ -57,4 +57,12 @@ def users_metrics(message):
 def store_messages(message):
 	insert_message_query(message)
 
+# TO DO
+# This handler doesn't work cause needs a definition to obtain the metric's output
+# in dict format
+
+@bot.message_handler(commands=['top_user'])
+def users_metrics(message):
+    bot.reply_to(message, get_metrics_by_chat(message))
+
 bot.infinity_polling()
