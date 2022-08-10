@@ -54,7 +54,7 @@ def users_metrics(message):
     bot.reply_to(message, get_metrics_by_chat(message))
 
 @bot.message_handler(content_types=['text'])
-def insert_message(message):
+def store_messages(message):
 	insert_message_query(message)
 
 bot.infinity_polling()
