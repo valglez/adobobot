@@ -8,32 +8,36 @@ bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
 
 # Conexion con MongoDB
 conn = pymongo.MongoClient(os.environ.get('DB_CONN'))
-db = conn[os.environ.get('DB_DBNAME')]
-coll = db[os.environ.get('DB_COLL')]
+db = conn[os.environ.get('DB_NAME')]
+coll = db[os.environ.get('DB_COL')]
 
 # Definición de métodos
 def get_chatid(message):
 	return message.chat.id
 
 def count_chats_for_user(chat_id, user_id):
-    return coll.count_documents({"ChatID": chat_id, "UserID": user_id})
+    return coll.count_documents({"chatid": chat_id, "userid": user_id})
 
 def get_username_by_id(chat_id, user_id):
-    result = coll.find({"ChatID": chat_id, "UserID": user_id}).limit(1)
-    return result[0]["Username"] or "Anonymous"
+    result = coll.find({"chatid": chat_id, "userid": user_id}).limit(1)
+    return result[0]["name"] or "Anonymous"
 
 def get_metrics_by_chat(message):
-    users_id = coll.distinct("UserID", {"ChatID": get_chatid(message)})
-    response = ""
-    for id in users_id:
-        usernames = get_username_by_id(get_chatid(message), id)
-        users_logs = str(count_chats_for_user(get_chatid(message), id))
-        response += "El usuario " + usernames + " ha enviado " + users_logs + " mensajes. \n"
-    return response
+    users_id = coll.distinct("userid", {"chatid": get_chatid(message)})
+    if users_id:
+        response = ""
+        for id in users_id:
+            usernames = get_username_by_id(get_chatid(message), id)
+            users_logs = str(count_chats_for_user(get_chatid(message), id))
+            response += "El usuario " + usernames + " ha enviado " + users_logs + " mensajes. \n"
+        return response
+    else:
+        response = "No se encontraron registros en este chat."
+        return response
 
 def insert_message_query(message):
     ts = (datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
-    query = [{"UserID": message.from_user.id, "Username": message.from_user.username, "Date": ts, "ChatID": message.chat.id, "Text": message.text}]
+    query = [{"userid": message.from_user.id, "name": message.from_user.username, "date": ts, "chatid": message.chat.id, "msgs": message.text}]
     coll.insert_many(query)
 
 #Definición de handlers
@@ -58,8 +62,7 @@ def store_messages(message):
 	insert_message_query(message)
 
 # TO DO
-# This handler doesn't work cause needs a definition to obtain the metric's output
-# in dict format
+# This handler doesn't work cause needs a definition to obtain the metric's output in dict format
 
 @bot.message_handler(commands=['top_user'])
 def users_metrics(message):
