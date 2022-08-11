@@ -24,7 +24,7 @@ def get_username_by_id(chat_id, user_id):
 
 def get_metrics_by_chat(message):
     users_id = coll.distinct("userid", {"chatid": get_chatid(message)})
-    while users_id:
+    if users_id:
         response = ""
         for id in users_id:
             usernames = get_username_by_id(get_chatid(message), id)
