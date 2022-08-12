@@ -30,33 +30,37 @@ def get_metrics_by_chat(message):
     mylist = []
     users_id = get_total_metrics_in_logs(message)
     for id in users_id:
-        usernames = get_username_by_id(get_chatid(message), id)
+        username = get_username_by_id(get_chatid(message), id)
         user_chats = count_chats_for_user(get_chatid(message), id)
-        keys = ["username", "msgs"]
-        values = [usernames, user_chats]
-        mydict = dict(zip(keys, values))
+        mydict = {}
+        mydict['name'] = username
+        mydict['msgs'] = user_chats
         mylist.append(mydict)
     return mylist
+
+def get_top_metrics(message):
+    users_metrics = get_metrics_by_chat(message)
+    top_dict = {}
+    max_value = max(users_metrics, key=lambda x:x['msgs'])
+    top_dict = max_value
+    return top_dict
 
 def get_metrics_for_all_users_by_chat(message):
     users_id = get_metrics_by_chat(message)
     if users_id:
         response = ""
         for id in users_id:
-            response += "El usuario " + id["username"] + " ha escrito un total de " + str(id["msgs"]) + " mensajes. \n"
+            response += "El usuario " + id["name"] + " ha escrito un total de " + str(id["msgs"]) + " mensajes. \n"
         return response
     else:
         response = "No se encontraron registros en este chat."
         return response
 
 def get_top_metrics_user_by_chat(message):
-    users_id = get_metrics_by_chat(message)
-    if users_id:
-        response = ""
-        for id in users_id:
-            max_msgs = max(id["msgs"])
-            print(max_msgs)
-            response += "El usuario " + id["username"] + " ha sido el usuario más activo con un total de " + str(max_msgs) + " mensajes. \n"
+    users_metrics = get_metrics_by_chat(message)
+    if users_metrics:
+        top = get_top_metrics(message)
+        response = "El usuario " + top["name"] + " ha sido el usuario más activo con un total de " + str(top["msgs"]) + " mensajes. \n"
         return response
     else:
         response = "No se encontraron registros en este chat."
