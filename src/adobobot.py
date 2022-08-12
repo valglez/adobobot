@@ -30,11 +30,11 @@ def get_metrics_by_chat(message):
     mylist = []
     users_id = get_total_metrics_in_logs(message)
     for id in users_id:
-        userskey = "username"
-        msgskey = "msgs"
-        usersdict = dict(zip(userskey.split(), (get_username_by_id(get_chatid(message), id)).split()))
-        msgsdict = dict(zip(msgskey.split(), (str(count_chats_for_user(get_chatid(message), id))).split()))
-        mydict = usersdict | msgsdict
+        usernames = get_username_by_id(get_chatid(message), id)
+        user_chats = count_chats_for_user(get_chatid(message), id)
+        keys = ["username", "msgs"]
+        values = [usernames, user_chats]
+        mydict = dict(zip(keys, values))
         mylist.append(mydict)
     return mylist
 
@@ -43,7 +43,20 @@ def get_metrics_for_all_users_by_chat(message):
     if users_id:
         response = ""
         for id in users_id:
-            response += "El usuario " + id["username"] + " ha escrito un total de " + id["msgs"] + " mensajes. \n"
+            response += "El usuario " + id["username"] + " ha escrito un total de " + str(id["msgs"]) + " mensajes. \n"
+        return response
+    else:
+        response = "No se encontraron registros en este chat."
+        return response
+
+def get_top_metrics_user_by_chat(message):
+    users_id = get_metrics_by_chat(message)
+    if users_id:
+        response = ""
+        for id in users_id:
+            max_msgs = max(id["msgs"])
+            print(max_msgs)
+            response += "El usuario " + id["username"] + " ha sido el usuario más activo con un total de " + str(max_msgs) + " mensajes. \n"
         return response
     else:
         response = "No se encontraron registros en este chat."
@@ -70,6 +83,10 @@ def about_bot(message):
 @bot.message_handler(commands=['metrics'])
 def users_metrics(message):
     bot.reply_to(message, get_metrics_for_all_users_by_chat(message))
+
+@bot.message_handler(commands=['top_user'])
+def users_metrics(message):
+    bot.reply_to(message, get_top_metrics_user_by_chat(message))
 
 @bot.message_handler(content_types=['text'])
 def store_messages(message):
