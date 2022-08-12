@@ -9,27 +9,41 @@ bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
 # Conexion con MongoDB
 conn = pymongo.MongoClient(os.environ.get('DB_CONN'))
 db = conn[os.environ.get('DB_NAME')]
-coll = db[os.environ.get('DB_COL')]
+col = db[os.environ.get('DB_COL')]
 
 # Definición de métodos
 def get_chatid(message):
 	return message.chat.id
 
 def count_chats_for_user(chat_id, user_id):
-    return coll.count_documents({"chatid": chat_id, "userid": user_id})
+    return col.count_documents({"chatid": chat_id, "userid": user_id})
 
 def get_username_by_id(chat_id, user_id):
-    result = coll.find({"chatid": chat_id, "userid": user_id}).limit(1)
+    result = col.find({"chatid": chat_id, "userid": user_id})
     return result[0]["name"] or "Anonymous"
 
+def get_total_metrics_in_logs(message):
+    result = col.distinct("userid", {"chatid": get_chatid(message)})
+    return result
+
 def get_metrics_by_chat(message):
-    users_id = coll.distinct("userid", {"chatid": get_chatid(message)})
+    mylist = []
+    users_id = get_total_metrics_in_logs(message)
+    for id in users_id:
+        userskey = "username"
+        msgskey = "msgs"
+        usersdict = dict(zip(userskey.split(), (get_username_by_id(get_chatid(message), id)).split()))
+        msgsdict = dict(zip(msgskey.split(), (str(count_chats_for_user(get_chatid(message), id))).split()))
+        mydict = usersdict | msgsdict
+        mylist.append(mydict)
+    return mylist
+
+def get_metrics_for_all_users_by_chat(message):
+    users_id = get_metrics_by_chat(message)
     if users_id:
         response = ""
         for id in users_id:
-            usernames = get_username_by_id(get_chatid(message), id)
-            users_logs = str(count_chats_for_user(get_chatid(message), id))
-            response += "El usuario " + usernames + " ha enviado " + users_logs + " mensajes. \n"
+            response += "El usuario " + id["username"] + " ha escrito un total de " + id["msgs"] + " mensajes. \n"
         return response
     else:
         response = "No se encontraron registros en este chat."
@@ -38,7 +52,7 @@ def get_metrics_by_chat(message):
 def insert_message_query(message):
     ts = (datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
     query = [{"userid": message.from_user.id, "name": message.from_user.username, "date": ts, "chatid": message.chat.id, "msgs": message.text}]
-    coll.insert_many(query)
+    col.insert_many(query)
 
 #Definición de handlers
 @bot.message_handler(commands=['start'])
@@ -55,17 +69,10 @@ def about_bot(message):
 
 @bot.message_handler(commands=['metrics'])
 def users_metrics(message):
-    bot.reply_to(message, get_metrics_by_chat(message))
+    bot.reply_to(message, get_metrics_for_all_users_by_chat(message))
 
 @bot.message_handler(content_types=['text'])
 def store_messages(message):
 	insert_message_query(message)
-
-# TO DO
-# This handler doesn't work cause needs a definition to obtain the metric's output in dict format
-
-@bot.message_handler(commands=['top_user'])
-def users_metrics(message):
-    bot.reply_to(message, get_metrics_by_chat(message))
 
 bot.infinity_polling()
