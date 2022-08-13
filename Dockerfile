@@ -1,5 +1,5 @@
 # Imagen base con los binarios de Python basada en debian
-FROM python:3.8-slim-buster
+FROM python:3.7-slim-buster
 # Carpeta raiz en la que vamos a meter los ficheros
 WORKDIR /app
 # Ejecución de comandos
