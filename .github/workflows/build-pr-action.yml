@@ -1,4 +1,4 @@
-name: docker-pr-action
+name: build-pr-action
 on:
   pull_request:
     branches:
