@@ -22,7 +22,7 @@ jobs:
       -
         name: Docker login
         run: |
-        docker login -u $DOCKER_USER -p $DOCKER_TOKEN 
+        docker login -u $DOCKER_USER
       -
         name: Build and push
         uses: docker/build-push-action@v3
