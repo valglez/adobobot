@@ -3,7 +3,7 @@ name: push-image-to-dockerhub
 on:
   pull_request:
     branches:
-      - 'main'
+      - main
 
 jobs:
   docker:
