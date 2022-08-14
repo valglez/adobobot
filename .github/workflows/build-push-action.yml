@@ -1,7 +1,7 @@
 name: build-push-action
 
 on:
-  push:
+  pr:
     branches:
       - 'main'
       - 'master'
