@@ -33,15 +33,15 @@ def get_metrics_by_chat(message):
         username = get_username_by_id(get_chatid(message), id)
         user_chats = count_chats_for_user(get_chatid(message), id)
         mydict = {}
-        mydict['name'] = username
-        mydict['msgs'] = user_chats
+        mydict["name"] = username
+        mydict["msgs"] = user_chats
         mylist.append(mydict)
     return mylist
 
 def get_top_metrics(message):
     users_metrics = get_metrics_by_chat(message)
     top_dict = {}
-    max_value = max(users_metrics, key=lambda x:x['msgs'])
+    max_value = max(users_metrics, key=lambda x:x["msgs"])
     top_dict = max_value
     return top_dict
 
@@ -78,7 +78,7 @@ def send_start(message):
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
-	bot.reply_to(message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
+	bot.reply_to(message, 'Estos son los comandos que puedes usar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
 
 @bot.message_handler(commands=['about'])
 def about_bot(message):
