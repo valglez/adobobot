@@ -12,7 +12,7 @@ jobs:
       -
         name: Docker login
         run: |
-        docker login -u ${{ secrets.DOCKER_NAME }} -p ${{ secrets.DOCKER_TOKEN }}
+        docker login -u ${{ secrets.DOCKER_NAME }}
       -
         name: Build and push
         uses: docker/build-push-action@v3
