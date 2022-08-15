@@ -67,7 +67,13 @@ def get_top_user_metrics_in_this_chat(message):
 
 def store_logs(message):
     currdate = (datetime.fromtimestamp(message.date) - timedelta(hours=0)).strftime('%Y-%m-%d %H:%M:%S')
-    query = [{'userid': message.from_user.id, 'name': message.from_user.username, 'date': currdate, 'chatid': message.chat.id, 'msgs': message.text}]
+    query = [
+        {'userid': message.from_user.id,
+        'name': message.from_user.username,
+        'date': currdate,
+        'chatid': message.chat.id,
+        'msgs': message.text}
+    ]
     col.insert_many(query)
 
 #Definición de handlers
