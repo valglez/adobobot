@@ -1,4 +1,4 @@
-name: build-pr-action
+name: pull-request-build
 
 on:
   pull_request:
