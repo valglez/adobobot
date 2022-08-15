@@ -28,6 +28,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ./src/adobobot/Dockerfile
           push: true
           repository: valglez/adobobot
           tags: latest, ${{ github.run_number }}
