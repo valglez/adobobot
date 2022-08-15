@@ -23,8 +23,7 @@ def get_user_by_id(chat_id, user_id):
     return result[0]['name'] or 'Anonymous'
 
 def get_total_users_metrics(message):
-    result = col.distinct('userid', {'chatid': get_chatid(message)})
-    return result
+    return col.distinct('userid', {'chatid': get_chatid(message)})
 
 def get_total_users_metrics_by_chat(message):
     mylist = []
@@ -67,8 +66,8 @@ def get_top_user_metrics_in_this_chat(message):
         return response
 
 def store_logs(message):
-    ts = (datetime.fromtimestamp(message.date) - timedelta(hours=0)).strftime('%Y-%m-%d %H:%M:%S')
-    query = [{'userid': message.from_user.id, 'name': message.from_user.username, 'date': ts, 'chatid': message.chat.id, 'msgs': message.text}]
+    currdate = (datetime.fromtimestamp(message.date) - timedelta(hours=0)).strftime('%Y-%m-%d %H:%M:%S')
+    query = [{'userid': message.from_user.id, 'name': message.from_user.username, 'date': currdate, 'chatid': message.chat.id, 'msgs': message.text}]
     col.insert_many(query)
 
 #Definición de handlers
