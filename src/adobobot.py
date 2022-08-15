@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pymongo
 import telebot
 import os
@@ -16,21 +16,20 @@ def get_chatid(message):
 	return message.chat.id
 
 def count_chats_for_user(chat_id, user_id):
-    return col.count_documents({"chatid": chat_id, "userid": user_id})
+    return col.count_documents({'chatid': chat_id, 'userid': user_id})
 
-def get_username_by_id(chat_id, user_id):
-    result = col.find({"chatid": chat_id, "userid": user_id})
-    return result[0]["name"] or "Anonymous"
+def get_user_by_id(chat_id, user_id):
+    result = col.find({'chatid': chat_id, 'userid': user_id})
+    return result[0]['name'] or 'Anonymous'
 
-def get_total_metrics_in_logs(message):
-    result = col.distinct("userid", {"chatid": get_chatid(message)})
-    return result
+def get_total_users_metrics(message):
+    return col.distinct('userid', {'chatid': get_chatid(message)})
 
-def get_metrics_by_chat(message):
+def get_total_users_metrics_by_chat(message):
     mylist = []
-    users_id = get_total_metrics_in_logs(message)
+    users_id = get_total_users_metrics(message)
     for id in users_id:
-        username = get_username_by_id(get_chatid(message), id)
+        username = get_user_by_id(get_chatid(message), id)
         user_chats = count_chats_for_user(get_chatid(message), id)
         mydict = {}
         mydict['name'] = username
@@ -38,62 +37,76 @@ def get_metrics_by_chat(message):
         mylist.append(mydict)
     return mylist
 
-def get_top_metrics(message):
-    users_metrics = get_metrics_by_chat(message)
+def get_top_user_metrics_by_chat(message):
+    users_metrics = get_total_users_metrics_by_chat(message)
     top_dict = {}
     max_value = max(users_metrics, key=lambda x:x['msgs'])
     top_dict = max_value
     return top_dict
 
-def get_metrics_for_all_users_by_chat(message):
-    users_id = get_metrics_by_chat(message)
+def get_total_users_metrics_in_this_chat(message):
+    users_id = get_total_users_metrics_by_chat(message)
     if users_id:
-        response = ""
+        response = ''
         for id in users_id:
-            response += "El usuario " + id["name"] + " ha escrito un total de " + str(id["msgs"]) + " mensajes. \n"
+            response += 'El usuario ' + id['name'] + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes. \n'
         return response
     else:
-        response = "No se encontraron registros en este chat."
+        response = 'No se encontraron registros en este chat.'
         return response
 
-def get_top_metrics_user_by_chat(message):
-    users_metrics = get_metrics_by_chat(message)
+def get_top_user_metrics_in_this_chat(message):
+    users_metrics = get_total_users_metrics_by_chat(message)
     if users_metrics:
-        top = get_top_metrics(message)
-        response = "El usuario " + top["name"] + " ha sido el usuario más activo con un total de " + str(top["msgs"]) + " mensajes. \n"
+        top = get_top_user_metrics_by_chat(message)
+        response = 'El usuario ' + top['name'] + ' ha sido el usuario más activo con un total de ' + str(top['msgs']) + ' mensajes. \n'
         return response
     else:
-        response = "No se encontraron registros en este chat."
+        response = 'No se encontraron registros en este chat.'
         return response
 
-def insert_message_query(message):
-    ts = (datetime.utcfromtimestamp(message.date).strftime('%Y-%m-%d %H:%M:%S'))
-    query = [{"userid": message.from_user.id, "name": message.from_user.username, "date": ts, "chatid": message.chat.id, "msgs": message.text}]
+def store_logs(message):
+    currdate = (datetime.fromtimestamp(message.date) - timedelta(hours=0)).strftime('%Y-%m-%d %H:%M:%S')
+    query = [
+        {'userid': message.from_user.id,
+        'name': message.from_user.username,
+        'date': currdate,
+        'chatid': message.chat.id,
+        'msgs': message.text}
+    ]
     col.insert_many(query)
 
 #Definición de handlers
 @bot.message_handler(commands=['start'])
-def send_start(message):
-	bot.reply_to(message, 'Hola, mi nombre es adobobot. Escribe /help para mostrarte los comandos disponibles.')
+def start_bot(message):
+    response = 'Escribe /help para mostrarte los comandos disponibles.'
+    bot.reply_to(message, response)
 
 @bot.message_handler(commands=['help'])
-def send_help(message):
-	bot.reply_to(message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
+def help_bot(message):
+    response = 'Puedes usar los siguientes comandos:\n\n\
+/top_user - Muestra el usuario más activo del chat\n\
+/metrics - Muestra el total de mensajes de los usuarios del chat\n\
+/about - Sobre mí'
+    bot.reply_to(message, response)
 
 @bot.message_handler(commands=['about'])
 def about_bot(message):
-	bot.reply_to(message, 'Developed by valglez @ https://github.com/valglez')
+    response = 'Desarrollado por valglez @ https://github.com/valglez'
+    bot.reply_to(message, response)
 
 @bot.message_handler(commands=['metrics'])
-def users_metrics(message):
-    bot.reply_to(message, get_metrics_for_all_users_by_chat(message))
+def send_all_users_metrics_in_this_chat(message):
+    response = get_total_users_metrics_in_this_chat(message)
+    bot.reply_to(message, response)
 
 @bot.message_handler(commands=['top_user'])
-def users_metrics(message):
-    bot.reply_to(message, get_top_metrics_user_by_chat(message))
+def send_top_user_metrics_in_this_chat(message):
+    response = get_top_user_metrics_in_this_chat(message)
+    bot.reply_to(message, response)
 
 @bot.message_handler(content_types=['text'])
-def store_messages(message):
-	insert_message_query(message)
+def store_logs_in_this_chat(message):
+	store_logs(message)
 
 bot.infinity_polling()
