@@ -29,6 +29,5 @@ jobs:
         with:
           context: .
           push: true
-          tag_with_ref: true
-          tag_with_sha: true
-          tags: valglez/adobobot:latest
+          repository: valglez/adobobot
+          tags: latest, ${{ github.run_number }}
