@@ -1,7 +1,7 @@
 name: push-main-dockerhub
 
 on:
-  push:
+  pull_request:
     branches:
       - 'main'
 
