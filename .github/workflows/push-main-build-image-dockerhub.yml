@@ -10,6 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            valglez/adobobot
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
@@ -27,8 +45,8 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
+          with:
           context: .
-          file: ./src/adobobot/Dockerfile
-          push: true
-          repository: valglez/adobobot
-          tags: latest, ${{ github.run_number }}
+          push: ${{ github.event_name }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
