@@ -1,16 +1,14 @@
-name: pull-request-build
+name: tests
 
 on:
   pull_request:
     branches:
        - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - 
-      uses: actions/checkout@v3
-      - 
-      name: Build Docker image
-      run: docker build . --file Dockerfile
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build Docker image
+        run: docker build . --file Dockerfile
