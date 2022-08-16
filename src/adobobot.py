@@ -25,12 +25,11 @@ def get_user_by_id(chat_id, user_id):
 def get_total_users_metrics(message):
     return col.distinct('userid', {'chatid': get_chatid(message)})
 
-def get_ranked_metrics_by_chatid(message):
+def get_ranking_metrics_in_this_chat(message):
     pipeline = (
         {"$match":{"chatid":message.chat.id }},
         {"$group":{"_id":"$name","msgs":{"$sum": 1}}},
-        {"$sort":{"msgs":-1}},
-        {"$limit": 3}
+        {"$sort":{"msgs":-1}}
     )
     users_metrics = col.aggregate(list(pipeline))
     response = 'Top de mensajes en este chat:\n\n'
@@ -108,6 +107,7 @@ def help_bot(message):
     response = 'Puedes usar los siguientes comandos:\n\n\
 /top_user - Muestra el usuario más activo del chat\n\
 /metrics - Muestra el total de mensajes de los usuarios del chat\n\
+/ranking - Muestra el ranking de usuarios del chat\n\
 /about - Sobre mí'
     bot.reply_to(message, response)
 
@@ -118,18 +118,15 @@ def about_bot(message):
 
 @bot.message_handler(commands=['metrics'])
 def send_all_users_metrics_in_this_chat(message):
-    response = get_total_users_metrics_in_this_chat(message)
-    bot.reply_to(message, response)
+    bot.reply_to(message, get_total_users_metrics_in_this_chat(message))
 
 @bot.message_handler(commands=['top_user'])
 def send_top_user_metrics_in_this_chat(message):
-    response = get_top_user_metrics_in_this_chat(message)
-    bot.reply_to(message, response)
+    bot.reply_to(message, get_top_user_metrics_in_this_chat(message))
 
-@bot.message_handler(commands=['top3'])
+@bot.message_handler(commands=['ranking'])
 def send_top_user_metrics_in_this_chat(message):
-    response = get_ranked_metrics_by_chatid(message)
-    bot.reply_to(message, response)
+    bot.reply_to(message, get_ranking_metrics_in_this_chat(message))
 
 @bot.message_handler(content_types=['text'])
 def store_logs_in_this_chat(message):
