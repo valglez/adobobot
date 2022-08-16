@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
+from telebot import telebot
 import pymongo
-import telebot
 import os
 
 # Inicializar bot
@@ -12,6 +12,17 @@ db = conn[os.environ.get('DB_NAME')]
 col = db[os.environ.get('DB_COL')]
 
 # Definición de métodos
+# TO DO
+def get_arg(arg):
+    num = arg.split()[1:]
+    limit = int(num[0])
+    if 1 <= limit <= 10:
+        return limit
+    elif limit == 0:
+        return 10
+    elif limit > 10:
+        return 10
+
 def get_chatid(message):
 	return message.chat.id
 
@@ -29,17 +40,18 @@ def get_total_users_metrics(message):
     return col.distinct('userid', {'chatid': get_chatid(message)})
 
 def get_sort_metrics_by_chatid(message):
+    limit = get_arg(message.text)
     pipeline = (
         {'$match':{'chatid': get_chatid(message)}},
         {'$group':{'_id':'$name','msgs':{'$sum': 1}}},
-        {'$sort':{'msgs':-1}}
-    )
+        {'$sort':{'msgs':-1}},
+        {'$limit':limit})
     return col.aggregate(list(pipeline))
 
 def get_ranking_metrics_in_this_chat(message):
     users_metrics = get_sort_metrics_by_chatid(message)
-    chat_title = get_chat_title(message)
-    response = 'TOP de mensajes en ' + chat_title + ':\n\n'
+    chat_title = get_chat_title(message) or 'este chat'
+    response = 'TOP de mensajes en ' +  chat_title + ':\n'
     for idx, id in enumerate(users_metrics):
         name = id['_id'] or 'Anonymous'
         idx += 1
@@ -51,7 +63,6 @@ def get_ranking_metrics_in_this_chat(message):
             response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥉') + '\n'
     return response
         
-
 def get_total_users_metrics_by_chat(message):
     mylist = []
     users_id = get_total_users_metrics(message)
