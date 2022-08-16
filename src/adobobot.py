@@ -29,13 +29,15 @@ def get_ranked_metrics_by_chatid(message):
     pipeline = (
         {"$match":{"chatid":message.chat.id }},
         {"$group":{"_id":"$name","msgs":{"$sum": 1}}},
-        {"$sort":{"msgs":-1}},{"$limit": 3}
+        {"$sort":{"msgs":-1}},
+        {"$limit": 3}
     )
     users_metrics = col.aggregate(list(pipeline))
     response = 'Top de mensajes en este chat:\n\n'
-    for id in users_metrics:
+    for idx, id in enumerate(users_metrics):
+        idx += 1
         name = id['_id'] or 'Anonymous'
-        response += name + ' (' + str(id['msgs']) + ')\n'
+        response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ')\n'
     return response
         
 
