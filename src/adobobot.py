@@ -25,6 +25,20 @@ def get_user_by_id(chat_id, user_id):
 def get_total_users_metrics(message):
     return col.distinct('userid', {'chatid': get_chatid(message)})
 
+def get_ranked_metrics_by_chatid(message):
+    pipeline = (
+        {"$match":{"chatid":message.chat.id }},
+        {"$group":{"_id":"$name","msgs":{"$sum": 1}}},
+        {"$sort":{"msgs":-1}},{"$limit": 3}
+    )
+    users_metrics = col.aggregate(list(pipeline))
+    response = 'Top de mensajes en este chat:\n\n'
+    for id in users_metrics:
+        name = id['_id'] or 'Anonymous'
+        response += name + ' (' + str(id['msgs']) + ')\n'
+    return response
+        
+
 def get_total_users_metrics_by_chat(message):
     mylist = []
     users_id = get_total_users_metrics(message)
@@ -103,6 +117,11 @@ def send_all_users_metrics_in_this_chat(message):
 @bot.message_handler(commands=['top_user'])
 def send_top_user_metrics_in_this_chat(message):
     response = get_top_user_metrics_in_this_chat(message)
+    bot.reply_to(message, response)
+
+@bot.message_handler(commands=['top3'])
+def send_top_user_metrics_in_this_chat(message):
+    response = get_ranked_metrics_by_chatid(message)
     bot.reply_to(message, response)
 
 @bot.message_handler(content_types=['text'])
