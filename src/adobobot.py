@@ -35,9 +35,14 @@ def get_ranked_metrics_by_chatid(message):
     users_metrics = col.aggregate(list(pipeline))
     response = 'Top de mensajes en este chat:\n\n'
     for idx, id in enumerate(users_metrics):
-        idx += 1
         name = id['_id'] or 'Anonymous'
-        response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ')\n'
+        idx += 1
+        if idx == 1:
+            response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥇') + '\n'
+        elif idx == 2:
+            response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥈') + '\n'
+        else:
+            response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥉') + '\n'
     return response
         
 
