@@ -15,6 +15,9 @@ col = db[os.environ.get('DB_COL')]
 def get_chatid(message):
 	return message.chat.id
 
+def get_chat_title(message):
+	return message.chat.title
+
 def count_chats_for_user(chat_id, user_id):
     return col.count_documents({'chatid': chat_id, 'userid': user_id})
 
@@ -35,7 +38,8 @@ def get_sort_metrics_by_chatid(message):
 
 def get_ranking_metrics_in_this_chat(message):
     users_metrics = get_sort_metrics_by_chatid(message)
-    response = 'Top de mensajes en este chat:\n\n'
+    chat_title = get_chat_title(message)
+    response = 'TOP de mensajes en ' + chat_title + ':\n\n'
     for idx, id in enumerate(users_metrics):
         name = id['_id'] or 'Anonymous'
         idx += 1
