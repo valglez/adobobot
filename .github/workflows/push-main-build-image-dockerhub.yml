@@ -1,4 +1,4 @@
-name: push-main-dockerhub
+name: push-main-dockerhub-build-image
 
 on:
   push:
