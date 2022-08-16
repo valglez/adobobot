@@ -25,13 +25,16 @@ def get_user_by_id(chat_id, user_id):
 def get_total_users_metrics(message):
     return col.distinct('userid', {'chatid': get_chatid(message)})
 
-def get_ranking_metrics_in_this_chat(message):
+def get_sort_metrics_by_chatid(message):
     pipeline = (
-        {"$match":{"chatid":message.chat.id }},
-        {"$group":{"_id":"$name","msgs":{"$sum": 1}}},
-        {"$sort":{"msgs":-1}}
+        {'$match':{'chatid': get_chatid(message)}},
+        {'$group':{'_id':'$name','msgs':{'$sum': 1}}},
+        {'$sort':{'msgs':-1}}
     )
-    users_metrics = col.aggregate(list(pipeline))
+    return col.aggregate(list(pipeline))
+
+def get_ranking_metrics_in_this_chat(message):
+    users_metrics = get_sort_metrics_by_chatid(message)
     response = 'Top de mensajes en este chat:\n\n'
     for idx, id in enumerate(users_metrics):
         name = id['_id'] or 'Anonymous'
