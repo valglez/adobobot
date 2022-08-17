@@ -12,16 +12,20 @@ db = conn[os.environ.get('DB_NAME')]
 col = db[os.environ.get('DB_COL')]
 
 # Definición de métodos
-# TO DO
 def get_arg(arg):
-    num = arg.split()[1:]
-    limit = int(num[0])
-    if 1 <= limit <= 10:
+    input = arg.split()[1:]
+    if not input:
+        limit = 10
         return limit
-    elif limit == 0:
-        return 10
-    elif limit > 10:
-        return 10
+    elif str.isdigit(input[0]) == False:
+        limit = 10
+        return limit
+    elif 1 <= int(input[0]) <= 10:
+        limit = int(input[0])
+        return limit
+    elif int(input[0]) == 0 or int(input[0]) > 10:
+        limit = 10
+        return limit
 
 def get_chatid(message):
 	return message.chat.id
