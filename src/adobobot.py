@@ -54,6 +54,14 @@ def get_sort_metrics_by_chatid(message):
         {'$limit':(get_arg(get_chat_text(message)))})
     return col.aggregate(list(pipeline))
 
+def get_top_user_metrics_by_chatid(message):
+    pipeline = (
+        {'$match':{'chatid': get_chatid(message)}},
+        {'$group':{'_id':'$name','msgs':{'$sum': 1}}},
+        {'$sort':{'msgs':-1}},
+        {'$limit':1})
+    return col.aggregate(list(pipeline))
+
 def get_total_users_metrics_by_chat(message):
     mylist = []
     users_id = get_total_users_metrics(message)
@@ -89,7 +97,7 @@ def get_total_users_metrics_in_this_chat(message):
         response = ''
         for id in get_sort_metrics_by_chatid(message):
             name = id['_id'] or 'Anonymous'
-            response += 'El usuario ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.'
+            response += 'El usuario ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.\n'
         return response
     else:
         response = 'Sin registros.'
@@ -98,7 +106,7 @@ def get_total_users_metrics_in_this_chat(message):
 def get_top_user_metrics_in_this_chat(message):
     if get_total_users_metrics_by_chat(message):
         response = ''
-        for id in get_sort_metrics_by_chatid(message):
+        for id in get_top_user_metrics_by_chatid(message):
             name = id['_id'] or 'Anonymous'
             response += 'El usuario ' + name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
         return response
