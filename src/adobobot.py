@@ -81,35 +81,29 @@ def get_ranking_metrics_in_this_chat(message):
                 response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥉') + '\n'
         return response
     else:
-        response = 'Sin registros en este chat'
+        response = 'Sin registros.'
         return response
-
-def get_top_user_metrics_by_chat(message):
-    users_metrics = get_total_users_metrics_by_chat(message)
-    top_dict = {}
-    max_value = max(users_metrics, key=lambda x:x['msgs'])
-    top_dict = max_value
-    return top_dict
 
 def get_total_users_metrics_in_this_chat(message):
-    users_id = get_total_users_metrics_by_chat(message)
-    if users_id:
+    if get_total_users_metrics_by_chat(message):
         response = ''
-        for id in users_id:
-            response += 'El usuario ' + id['name'] + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes. \n'
+        for id in get_sort_metrics_by_chatid(message):
+            name = id['_id'] or 'Anonymous'
+            response += 'El usuario ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.'
         return response
     else:
-        response = 'No se encontraron registros en este chat.'
+        response = 'Sin registros.'
         return response
 
 def get_top_user_metrics_in_this_chat(message):
-    users_metrics = get_total_users_metrics_by_chat(message)
-    if users_metrics:
-        top = get_top_user_metrics_by_chat(message)
-        response = 'El usuario ' + top['name'] + ' ha sido el usuario más activo con un total de ' + str(top['msgs']) + ' mensajes. \n'
+    if get_total_users_metrics_by_chat(message):
+        response = ''
+        for id in get_sort_metrics_by_chatid(message):
+            name = id['_id'] or 'Anonymous'
+            response += 'El usuario ' + name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
         return response
     else:
-        response = 'No se encontraron registros en este chat.'
+        response = 'Sin registros.'
         return response
 
 def store_logs(message):
