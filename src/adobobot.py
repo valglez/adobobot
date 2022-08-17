@@ -12,6 +12,15 @@ db = conn[os.environ.get('DB_NAME')]
 col = db[os.environ.get('DB_COL')]
 
 # Definición de métodos
+def get_chatid(message):
+	return message.chat.id
+
+def get_chat_title(message):
+	return message.chat.title
+
+def get_chat_text(message):
+    return message.text
+
 def get_arg(arg):
     input = arg.split()[1:]
     if not input:
@@ -27,12 +36,6 @@ def get_arg(arg):
         limit = 10
         return limit
 
-def get_chatid(message):
-	return message.chat.id
-
-def get_chat_title(message):
-	return message.chat.title
-
 def count_chats_for_user(chat_id, user_id):
     return col.count_documents({'chatid': chat_id, 'userid': user_id})
 
@@ -44,7 +47,7 @@ def get_total_users_metrics(message):
     return col.distinct('userid', {'chatid': get_chatid(message)})
 
 def get_sort_metrics_by_chatid(message):
-    limit = get_arg(message.text)
+    limit = get_arg(get_chat_text(message))
     pipeline = (
         {'$match':{'chatid': get_chatid(message)}},
         {'$group':{'_id':'$name','msgs':{'$sum': 1}}},
