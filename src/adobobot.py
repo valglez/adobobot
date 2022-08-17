@@ -47,29 +47,13 @@ def get_total_users_metrics(message):
     return col.distinct('userid', {'chatid': get_chatid(message)})
 
 def get_sort_metrics_by_chatid(message):
-    limit = get_arg(get_chat_text(message))
     pipeline = (
         {'$match':{'chatid': get_chatid(message)}},
         {'$group':{'_id':'$name','msgs':{'$sum': 1}}},
         {'$sort':{'msgs':-1}},
-        {'$limit':limit})
+        {'$limit':(get_arg(get_chat_text(message)))})
     return col.aggregate(list(pipeline))
 
-def get_ranking_metrics_in_this_chat(message):
-    users_metrics = get_sort_metrics_by_chatid(message)
-    chat_title = get_chat_title(message) or 'este chat'
-    response = 'TOP de mensajes en ' +  chat_title + ':\n'
-    for idx, id in enumerate(users_metrics):
-        name = id['_id'] or 'Anonymous'
-        idx += 1
-        if idx == 1:
-            response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥇') + '\n'
-        elif idx == 2:
-            response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥈') + '\n'
-        else:
-            response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥉') + '\n'
-    return response
-        
 def get_total_users_metrics_by_chat(message):
     mylist = []
     users_id = get_total_users_metrics(message)
@@ -81,6 +65,24 @@ def get_total_users_metrics_by_chat(message):
         mydict['msgs'] = user_chats
         mylist.append(mydict)
     return mylist
+
+def get_ranking_metrics_in_this_chat(message):
+    chat_title = get_chat_title(message) or 'este chat'
+    if get_total_users_metrics_by_chat(message):
+        response = 'TOP de mensajes en ' +  chat_title + ':\n'
+        for idx, id in enumerate(get_sort_metrics_by_chatid(message)):
+            name = id['_id'] or 'Anonymous'
+            idx += 1
+            if idx == 1:
+                response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥇') + '\n'
+            elif idx == 2:
+                response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥈') + '\n'
+            else:
+                response += str(idx) + '. ' + name + ' (' + str(id['msgs']) + ') ' + str('🥉') + '\n'
+        return response
+    else:
+        response = 'Sin registros en este chat'
+        return response
 
 def get_top_user_metrics_by_chat(message):
     users_metrics = get_total_users_metrics_by_chat(message)
