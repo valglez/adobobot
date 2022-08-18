@@ -15,13 +15,16 @@ col = db[os.environ.get('DB_COL')]
 def get_chatid(message):
 	return message.chat.id
 
+def get_userid(message):
+	return message.from_user.id
+
 def get_chat_title(message):
 	return message.chat.title
 
 def get_chat_text(message):
     return message.text
 
-def get_arg(arg):
+def get_input(arg):
     input = arg.split()[1:]
     if not input:
         limit = 10
@@ -36,22 +39,15 @@ def get_arg(arg):
         limit = 10
         return limit
 
-def count_chats_for_user(chat_id, user_id):
+def check_user(chat_id, user_id):
     return col.count_documents({'chatid': chat_id, 'userid': user_id})
 
-def get_user_by_id(chat_id, user_id):
-    result = col.find({'chatid': chat_id, 'userid': user_id})
-    return result[0]['name'] or 'Anonymous'
-
-def get_total_users_metrics(message):
-    return col.distinct('userid', {'chatid': get_chatid(message)})
-
-def get_sort_metrics_by_chatid(message):
+def get_sorted_metrics_by_chatid(message):
     pipeline = (
         {'$match':{'chatid': get_chatid(message)}},
         {'$group':{'_id':'$name','msgs':{'$sum': 1}}},
         {'$sort':{'msgs':-1}},
-        {'$limit':(get_arg(get_chat_text(message)))})
+        {'$limit':(get_input(get_chat_text(message)))})
     return col.aggregate(list(pipeline))
 
 def get_top_user_metrics_by_chatid(message):
@@ -62,23 +58,11 @@ def get_top_user_metrics_by_chatid(message):
         {'$limit':1})
     return col.aggregate(list(pipeline))
 
-def get_total_users_metrics_by_chat(message):
-    mylist = []
-    users_id = get_total_users_metrics(message)
-    for id in users_id:
-        username = get_user_by_id(get_chatid(message), id)
-        user_chats = count_chats_for_user(get_chatid(message), id)
-        mydict = {}
-        mydict['name'] = username
-        mydict['msgs'] = user_chats
-        mylist.append(mydict)
-    return mylist
-
 def get_ranking_metrics_in_this_chat(message):
-    chat_title = get_chat_title(message) or 'este chat'
-    if get_total_users_metrics_by_chat(message):
+    if check_user(get_chatid(message),get_userid(message)):
+        chat_title = get_chat_title(message) or 'este chat'
         response = 'TOP de mensajes en ' +  chat_title + ':\n'
-        for idx, id in enumerate(get_sort_metrics_by_chatid(message)):
+        for idx, id in enumerate(get_sorted_metrics_by_chatid(message)):
             name = id['_id'] or 'Anonymous'
             idx += 1
             if idx == 1:
@@ -93,22 +77,22 @@ def get_ranking_metrics_in_this_chat(message):
         return response
 
 def get_total_users_metrics_in_this_chat(message):
-    if get_total_users_metrics_by_chat(message):
+    if check_user(get_chatid(message),get_userid(message)):
         response = ''
-        for id in get_sort_metrics_by_chatid(message):
+        for id in get_sorted_metrics_by_chatid(message):
             name = id['_id'] or 'Anonymous'
-            response += 'El usuario ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.\n'
+            response += '• ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.\n'
         return response
     else:
         response = 'Sin registros.'
         return response
 
 def get_top_user_metrics_in_this_chat(message):
-    if get_total_users_metrics_by_chat(message):
+    if check_user(get_chatid(message),get_userid(message)):
         response = ''
         for id in get_top_user_metrics_by_chatid(message):
             name = id['_id'] or 'Anonymous'
-            response += 'El usuario ' + name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
+            response += name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
         return response
     else:
         response = 'Sin registros.'
@@ -133,9 +117,9 @@ def start_bot(message):
 @bot.message_handler(commands=['help'])
 def help_bot(message):
     response = 'Puedes usar los siguientes comandos:\n\n\
-/top_user - Muestra el usuario más activo del chat\n\
-/metrics - Muestra el total de mensajes de los usuarios del chat\n\
 /ranking - Muestra el ranking de usuarios del chat\n\
+/metrics - Muestra el total de mensajes de los usuarios del chat\n\
+/top_user - Muestra el usuario más activo del chat\n\
 /about - Sobre mí'
     bot.reply_to(message, response)
 
