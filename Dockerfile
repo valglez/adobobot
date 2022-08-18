@@ -5,6 +5,6 @@ WORKDIR /app
 # Ejecución de comandos
 RUN pip3 install pymongo pyTelegramBotAPI
 # Copia ficheros en la imagen del contenedor
-COPY ./src/adobobot.py .
+COPY ./src/ .
 # Comandos que se ejecutan al arrancar el contenedor"
-CMD [ "python3", "adobobot.py"]
+CMD [ "python3", "index.py"]
