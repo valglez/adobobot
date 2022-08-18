@@ -17,10 +17,10 @@ class BotControllers:
         return self.db.query_get_total_users_metrics(chat_id)
 
     def get_sort_metrics_by_chatid(self, chat_id, limit):
-        return self.db.query_get_sort_metrics_by_chatid(chat_id, limit or 2)
+        return self.db.query_sort_metrics_by_chatid(chat_id, limit or 2)
 
     def get_top_user_metrics_by_chatid(self, chat_id):
-        return self.db.query_get_sort_metrics_by_chatid(chat_id, 1)
+        return self.db.query_sort_metrics_by_chatid(chat_id, 1)
 
     def get_total_users_metrics_by_chat(self, chat_id):
         mylist = []

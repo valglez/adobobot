@@ -5,6 +5,7 @@ class Bot:
     def __init__(self, token, controllers):
         self.bot = telebot.TeleBot(token)
         self.ctrl = controllers
+        print('Started bot.')
 
     def get_chatid(self, message):
         return message.chat.id
@@ -49,11 +50,11 @@ class Bot:
 
         @self.bot.message_handler(commands=['metrics'])
         def users_metrics(message):
-            self.bot.reply_to(message, self.ctrl.get_total_users_metrics_in_this_chat(self.get_chatid()))
+            self.bot.reply_to(message, self.ctrl.get_total_users_metrics_in_this_chat(self.get_chatid(message),2))
 
         @self.bot.message_handler(content_types=['text'])
         def store_messages(message):
-            self.ctrl.store_msg(message)
+            self.ctrl.store_msg(message.from_user.id,message.from_user.username,message.date,self.get_chatid(message),message.text)
 
         # TO DO
         # This handler doesn't work cause needs a definition to obtain the metric's output
@@ -61,7 +62,8 @@ class Bot:
 
         @self.bot.message_handler(commands=['top_user'])
         def users_metrics(message):
-            self.bot.reply_to(message, self.ctrl.get_top_user_metrics_in_this_chat(self.get_chatid()))
+            self.bot.reply_to(message, self.ctrl.get_top_user_metrics_in_this_chat(self.get_chatid(message)))
 
     def start_polling(self):
+        print('Started polling..')
         return self.bot.infinity_polling()

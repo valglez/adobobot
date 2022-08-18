@@ -8,9 +8,6 @@ class Database:
         self.db = self.connection[db_name]
         self.collection = self.db[db_col]
 
-    def connect(self):
-        return self.collection
-
     def query_count_chats_for_user(self, chat_id, user_id):
         return self.collection.count_documents({'chatid': chat_id, 'userid': user_id})
 
