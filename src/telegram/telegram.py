@@ -10,6 +10,9 @@ class Bot:
     def get_chatid(self, message):
         return message.chat.id
 
+    def get_userid(self, message):
+        return message.from_user.id
+
     def get_chat_title(self, message):
         return message.chat.title
 
@@ -41,7 +44,11 @@ class Bot:
         @self.bot.message_handler(commands=['help'])
         def send_help(message):
             self.bot.reply_to(
-                message, 'Estos son los comandos que puedes utilizar:\n\n/start - Iniciar el bot\n/top_user - Usuario más activo\n/metrics - Muestra el total de mensajes de usuarios del grupo\n/about - Sobre mí')
+                message, 'Puedes usar los siguientes comandos:\n\n\
+/top - Muestra el ranking de usuarios del chat. Ejemplo: /top 3\n\
+/max - Muestra el usuario más activo del chat\n\
+/metrics - Muestra el total de mensajes de los usuarios del chat\n\
+/about - Sobre mí')
 
         @self.bot.message_handler(commands=['about'])
         def about_bot(message):
@@ -50,19 +57,19 @@ class Bot:
 
         @self.bot.message_handler(commands=['metrics'])
         def users_metrics(message):
-            self.bot.reply_to(message, self.ctrl.get_total_users_metrics_in_this_chat(self.get_chatid(message),2))
+            self.bot.reply_to(message, self.ctrl.get_total_users_metrics_in_this_chat(self.get_chatid(message), self.get_userid(message), self.get_arg(self.get_chat_text(message))))
+
+        @self.bot.message_handler(commands=['max'])
+        def users_metrics(message):
+            self.bot.reply_to(message, self.ctrl.get_top_user_metrics_in_this_chat(self.get_chatid(message), self.get_userid(message),1))
+
+        @self.bot.message_handler(commands=['top'])
+        def users_metrics(message):
+            self.bot.reply_to(message, self.ctrl.get_ranking_metrics_in_this_chat(self.get_chat_title(message), self.get_chatid(message), self.get_userid(message), self.get_arg(self.get_chat_text(message))))
 
         @self.bot.message_handler(content_types=['text'])
         def store_messages(message):
             self.ctrl.store_msg(message.from_user.id,message.from_user.username,message.date,self.get_chatid(message),message.text)
-
-        # TO DO
-        # This handler doesn't work cause needs a definition to obtain the metric's output
-        # in dict format
-
-        @self.bot.message_handler(commands=['top_user'])
-        def users_metrics(message):
-            self.bot.reply_to(message, self.ctrl.get_top_user_metrics_in_this_chat(self.get_chatid(message)))
 
     def start_polling(self):
         print('Started polling..')

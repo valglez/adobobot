@@ -1,4 +1,3 @@
-
 import pymongo
 
 
@@ -8,14 +7,8 @@ class Database:
         self.db = self.connection[db_name]
         self.collection = self.db[db_col]
 
-    def query_count_chats_for_user(self, chat_id, user_id):
+    def query_check_registred_users(self, chat_id, user_id):
         return self.collection.count_documents({'chatid': chat_id, 'userid': user_id})
-
-    def query_get_user_by_id(self, chat_id, user_id):
-        return self.collection.find({'chatid': chat_id, 'userid': user_id})
-
-    def query_get_total_users_metrics(self, chat_id):
-        return self.collection.distinct('userid', {'chatid': chat_id})
 
     def query_sort_metrics_by_chatid(self, chat_id, limit):
         pipeline = (
