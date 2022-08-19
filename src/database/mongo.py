@@ -1,6 +1,5 @@
 import pymongo
 
-
 class Database:
     def __init__(self, conn, db_name, db_col):
         self.connection = pymongo.MongoClient(conn)

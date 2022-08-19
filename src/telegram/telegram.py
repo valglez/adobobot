@@ -1,6 +1,5 @@
 import telebot
 
-
 class Bot:
     def __init__(self, token, controllers):
         self.bot = telebot.TeleBot(token)
@@ -39,7 +38,7 @@ class Bot:
         @self.bot.message_handler(commands=['start'])
         def send_start(message):
             self.bot.reply_to(
-                message, 'Hola, mi nombre es adobobot. Escribe /help para mostrarte los comandos disponibles.')
+                message, 'Escribe /help para mostrarte los comandos disponibles.')
 
         @self.bot.message_handler(commands=['help'])
         def send_help(message):
@@ -53,7 +52,7 @@ class Bot:
         @self.bot.message_handler(commands=['about'])
         def about_bot(message):
             self.bot.reply_to(
-                message, 'Developed by valglez @ https://github.com/valglez')
+                message, 'Desarrollado por valglez @ https://github.com/valglez/adobobot')
 
         @self.bot.message_handler(commands=['metrics'])
         def users_metrics(message):
@@ -61,7 +60,7 @@ class Bot:
 
         @self.bot.message_handler(commands=['max'])
         def users_metrics(message):
-            self.bot.reply_to(message, self.ctrl.get_top_user_metrics_in_this_chat(self.get_chatid(message), self.get_userid(message),1))
+            self.bot.reply_to(message, self.ctrl.get_top_user_metrics_in_this_chat(self.get_chatid(message), self.get_userid(message), 1))
 
         @self.bot.message_handler(commands=['top'])
         def users_metrics(message):

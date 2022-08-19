@@ -1,7 +1,6 @@
 # A class with all the controllers for the application
 from datetime import datetime, timedelta
 
-
 class BotControllers:
     def __init__(self, database):
         self.db = database
