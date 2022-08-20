@@ -68,7 +68,14 @@ class Bot:
 
         @self.bot.message_handler(content_types=['text'])
         def store_messages(message):
-            self.ctrl.store_msg(message.from_user.id,message.from_user.username,message.date,self.get_chatid(message),message.text)
+            self.ctrl.store_msg(message.from_user.id,message.date,self.get_chatid(message),message.text)
+        
+        # TO DO
+        # Store users in another collection
+        #  
+        #@self.bot.message_handler(content_types=['text'])
+        #def store_users(message):
+        #    self.ctrl.store_user(message.from_user.id,message.from_user.username)
 
     def start_polling(self):
         print('Started polling..')

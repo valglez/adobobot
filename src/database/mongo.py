@@ -19,3 +19,8 @@ class Database:
 
     def query_store_msg(self, object):
         self.collection.insert_one(object)
+
+    # TO DO 
+    #
+    #def query_store_user(self, object):
+    #    self.collection.insert_one(object)

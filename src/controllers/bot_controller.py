@@ -54,12 +54,19 @@ class BotControllers:
             response = 'Sin registros.'
             return response
 
-    def store_msg(self, user_id, username, date, chat_id, text):
+    def store_msg(self, user_id, date, chat_id, text):
         current_date = (datetime.fromtimestamp(date) -
                         timedelta(hours=0)).strftime('%Y-%m-%d %H:%M:%S')
         msg = {'userid': user_id,
-               'name': username,
                'date': current_date,
                'chatid': chat_id,
                'msgs': text}
         self.db.query_store_msg(msg)
+    
+    # TO DO
+    # Query for store userid and name in another collection
+    #
+    #def store_user(self, user_id, username):
+    #    user = {'userid': user_id,
+    #           'name': username}
+    #    self.db.query_store_user(user)
