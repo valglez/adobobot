@@ -18,10 +18,8 @@ class Database:
             {'$limit': limit})
         return self.col_logs.aggregate(list(pipeline))
 
-    def query_store_user(self, object):
-        self.col_users.insert_one(object)
-
     def query_store_msg(self, object):
         self.col_logs.insert_one(object)
 
-    
+    def query_upsert_user(self, query, values):
+        self.col_users.update_many(query, values, upsert=True)
