@@ -67,11 +67,8 @@ class Bot:
             self.bot.reply_to(message, self.ctrl.get_ranking_metrics_in_this_chat(self.get_chat_title(message), self.get_chatid(message), self.get_userid(message), self.get_arg(self.get_chat_text(message))))
 
         @self.bot.message_handler(content_types=['text'])
-        def store_users(message):
+        def col_stores(message):
             self.ctrl.store_user(message.from_user.id,message.from_user.username)
-
-        @self.bot.message_handler(content_types=['text'])
-        def store_messages(message):
             self.ctrl.store_msg(message.from_user.id,message.date,self.get_chatid(message),message.text)
 
     def start_polling(self):

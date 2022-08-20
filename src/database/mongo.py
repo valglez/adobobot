@@ -4,11 +4,11 @@ class Database:
     def __init__(self, conn, db_name, db_col):
         self.connection = pymongo.MongoClient(conn)
         self.db = self.connection[db_name]
-        self.collection = self.db[db_col[1:4]]
-        self.collection2 = self.db[db_col[5:10]]
+        self.col_logs = self.db[db_col[1:4]]
+        self.col_users = self.db[db_col[5:10]]
         
     def query_check_registred_users(self, chat_id, user_id):
-        return self.collection.count_documents({'chatid': chat_id, 'userid': user_id})
+        return self.col_logs.count_documents({'chatid': chat_id, 'userid': user_id})
 
     def query_sort_metrics_by_chatid(self, chat_id, limit):
         pipeline = (
@@ -16,12 +16,12 @@ class Database:
             {'$group': {'_id': '$name', 'msgs': {'$sum': 1}}},
             {'$sort': {'msgs': -1}},
             {'$limit': limit})
-        return self.collection.aggregate(list(pipeline))
+        return self.col_logs.aggregate(list(pipeline))
 
     def query_store_user(self, object):
-        self.collection2.insert_one(object)
+        self.col_users.insert_one(object)
 
     def query_store_msg(self, object):
-        self.collection.insert_one(object)
+        self.col_logs.insert_one(object)
 
     
