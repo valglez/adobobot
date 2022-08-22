@@ -24,19 +24,25 @@ class BotControllers:
         chat_title = title or 'este chat'
         if self.check_user(chat_id, user_id):
             response = 'TOP de mensajes en ' + chat_title + ':\n'
+            col_users = self.get_username(user_id)
+            for value in col_users:
+                col_users_name = value['name']
+                col_users_ids = value['userid']
             for idx, id in enumerate(self.get_sort_metrics_by_chatid(chat_id, limit)):
                 idx += 1
-                name = str(id['_id'])
-                if idx == 1:
-                    response += str(idx) + '. ' + name + ' (' + \
-                        str(id['msgs']) + ') ' + str('🥇') + '\n'
-                elif idx == 2:
-                    response += str(idx) + '. ' + name + ' (' + \
-                        str(id['msgs']) + ') ' + str('🥈') + '\n'
-                else:
-                    response += str(idx) + '. ' + name + ' (' + \
-                        str(id['msgs']) + ') ' + str('🥉') + '\n'
-                return response
+                col_log_ids = id['_id']
+                if col_log_ids == col_users_ids:
+                    name = col_users_name
+                    if idx == 1:
+                        response += str(idx) + '. ' + name + ' (' + \
+                            str(id['msgs']) + ') ' + str('🥇') + '\n'
+                    elif idx == 2:
+                        response += str(idx) + '. ' + name + ' (' + \
+                            str(id['msgs']) + ') ' + str('🥈') + '\n'
+                    else:
+                        response += str(idx) + '. ' + name + ' (' + \
+                            str(id['msgs']) + ') ' + str('🥉') + '\n'
+                    return response
         else:
             response = 'Sin registros.'
             return response
