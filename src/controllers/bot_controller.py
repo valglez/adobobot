@@ -4,20 +4,29 @@ from datetime import datetime, timedelta
 class BotControllers:
     def __init__(self, database):
         self.db = database
+        self.users_map = {}
+
+    def load_users(self):
+        raw_users = self.db.query_get_username()
+        for obj in raw_users:
+            self.users_map[obj['userid']] = obj['name']
+
+    def get_username(self, user_id):
+        return self.users_map[user_id]
 
     def get_sort_metrics_by_chatid(self, chat_id, limit):
         return self.db.query_sort_metrics_by_chatid(chat_id, limit)
 
     def check_user(self, chat_id, user_id):
         return self.db.query_check_registred_users(chat_id, user_id)
-
+    
     def get_ranking_metrics_in_this_chat(self, title, chat_id, user_id, limit):
         chat_title = title or 'este chat'
         if self.check_user(chat_id, user_id):
             response = 'TOP de mensajes en ' + chat_title + ':\n'
             for idx, id in enumerate(self.get_sort_metrics_by_chatid(chat_id, limit)):
-                name = id['_id'] or 'Anonymous'
                 idx += 1
+                name = str(id['_id'])
                 if idx == 1:
                     response += str(idx) + '. ' + name + ' (' + \
                         str(id['msgs']) + ') ' + str('🥇') + '\n'
@@ -27,7 +36,7 @@ class BotControllers:
                 else:
                     response += str(idx) + '. ' + name + ' (' + \
                         str(id['msgs']) + ') ' + str('🥉') + '\n'
-            return response
+                return response
         else:
             response = 'Sin registros.'
             return response
@@ -36,7 +45,7 @@ class BotControllers:
         if self.check_user(chat_id, user_id):
             response = ''
             for id in self.get_sort_metrics_by_chatid(chat_id, limit):
-                name = id['_id'] or 'Anonymous'
+                name = str((id['_id'] or 'Anonymous'))
                 response += '• ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.\n'
             return response
         else:
@@ -64,6 +73,6 @@ class BotControllers:
         self.db.query_store_msg(msg)
        
     def upsert_user(self, user_id, name):
-        query = {"userid":{"userid":user_id}}
+        query = {"userid":user_id}
         values = {"$set":{"name":name}}
         self.db.query_upsert_user(query,values)

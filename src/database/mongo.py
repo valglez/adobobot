@@ -10,10 +10,13 @@ class Database:
     def query_check_registred_users(self, chat_id, user_id):
         return self.col_logs.count_documents({'chatid': chat_id, 'userid': user_id})
 
+    def query_get_username(self):
+        return self.col_users.find()
+
     def query_sort_metrics_by_chatid(self, chat_id, limit):
         pipeline = (
             {'$match': {'chatid': chat_id}},
-            {'$group': {'_id': '$name', 'msgs': {'$sum': 1}}},
+            {'$group': {'_id': '$userid', 'msgs': {'$sum': 1}}},
             {'$sort': {'msgs': -1}},
             {'$limit': limit})
         return self.col_logs.aggregate(list(pipeline))
