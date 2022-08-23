@@ -24,25 +24,19 @@ class BotControllers:
         chat_title = title or 'este chat'
         if self.check_user(chat_id, user_id):
             response = 'TOP de mensajes en ' + chat_title + ':\n'
-            col_users = self.get_username(user_id)
-            for value in col_users:
-                col_users_name = value['name']
-                col_users_ids = value['userid']
             for idx, id in enumerate(self.get_sort_metrics_by_chatid(chat_id, limit)):
                 idx += 1
-                col_log_ids = id['_id']
-                if col_log_ids == col_users_ids:
-                    name = col_users_name
-                    if idx == 1:
-                        response += str(idx) + '. ' + name + ' (' + \
-                            str(id['msgs']) + ') ' + str('🥇') + '\n'
-                    elif idx == 2:
-                        response += str(idx) + '. ' + name + ' (' + \
-                            str(id['msgs']) + ') ' + str('🥈') + '\n'
-                    else:
-                        response += str(idx) + '. ' + name + ' (' + \
-                            str(id['msgs']) + ') ' + str('🥉') + '\n'
-                    return response
+                name = self.users_map[id['userid']] or 'anon'
+                if idx == 1:
+                    response += str(idx) + '. ' + name + ' (' + \
+                        str(id['msgs']) + ') ' + str('🥇') + '\n'
+                elif idx == 2:
+                    response += str(idx) + '. ' + name + ' (' + \
+                        str(id['msgs']) + ') ' + str('🥈') + '\n'
+                else:
+                    response += str(idx) + '. ' + name + ' (' + \
+                        str(id['msgs']) + ') ' + str('🥉') + '\n'
+            return response
         else:
             response = 'Sin registros.'
             return response
@@ -51,7 +45,7 @@ class BotControllers:
         if self.check_user(chat_id, user_id):
             response = ''
             for id in self.get_sort_metrics_by_chatid(chat_id, limit):
-                name = str((id['_id'] or 'Anonymous'))
+                name = self.users_map[id['userid']] or 'anon'
                 response += '• ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.\n'
             return response
         else:
@@ -62,7 +56,7 @@ class BotControllers:
         if self.check_user(chat_id, user_id):
             response = ''
         for id in self.get_sort_metrics_by_chatid(chat_id, limit):
-            name = id['_id'] or 'Anonymous'
+            name = self.users_map[id['userid']] or 'anon'
             response += name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
             return response
         else:
