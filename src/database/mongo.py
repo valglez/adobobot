@@ -18,7 +18,8 @@ class Database:
             {'$match': {'chatid': chat_id}},
             {'$group': {'_id': '$userid', 'msgs': {'$sum': 1}}},
             {'$sort': {'msgs': -1}},
-            {'$limit': limit})
+            {'$limit': limit},
+            {'$project': {'_id': 0,'msgs': 1,'userid': '$_id'}})
         return self.col_logs.aggregate(list(pipeline))
 
     def query_store_msg(self, object):
