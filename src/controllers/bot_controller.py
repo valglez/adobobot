@@ -26,7 +26,7 @@ class BotControllers:
             response = 'TOP de mensajes en ' + chat_title + ':\n'
             for idx, id in enumerate(self.get_sort_metrics_by_chatid(chat_id, limit)):
                 idx += 1
-                name = self.users_map[id['userid']] or 'anon'
+                name = self.get_username(id['userid']) or 'Anonymous'
                 if idx == 1:
                     response += str(idx) + '. ' + name + ' (' + \
                         str(id['msgs']) + ') ' + str('🥇') + '\n'
@@ -45,7 +45,7 @@ class BotControllers:
         if self.check_user(chat_id, user_id):
             response = ''
             for id in self.get_sort_metrics_by_chatid(chat_id, limit):
-                name = self.users_map[id['userid']] or 'anon'
+                name = self.get_username(id['userid']) or 'Anonymous'
                 response += '• ' + name + ' ha escrito un total de ' + str(id['msgs']) + ' mensajes.\n'
             return response
         else:
@@ -56,7 +56,7 @@ class BotControllers:
         if self.check_user(chat_id, user_id):
             response = ''
         for id in self.get_sort_metrics_by_chatid(chat_id, limit):
-            name = self.users_map[id['userid']] or 'anon'
+            name = self.get_username(id['userid']) or 'Anonymous'
             response += name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
             return response
         else:
