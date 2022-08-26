@@ -10,7 +10,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Python Version
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip requests
       - name: Run tests
-        run: python3 -m unittest ./tests/**/*.py
+        run: python3 tests/cache/test_cache.py 
       - name: Build Docker image
         run: docker build . --file Dockerfile
