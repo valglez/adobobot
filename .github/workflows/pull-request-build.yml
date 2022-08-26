@@ -11,6 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run tests
-        uses: python3 -m unittest ./tests/**/*.py
+        run: python3 -m unittest ./tests/**/*.py
       - name: Build Docker image
         run: docker build . --file Dockerfile
