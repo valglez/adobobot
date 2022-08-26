@@ -2,17 +2,17 @@
 from datetime import datetime, timedelta
 
 class BotControllers:
-    def __init__(self, database):
+    def __init__(self, database, cache):
         self.db = database
-        self.users_map = {}
+        self.cache = cache
 
     def load_users(self):
         raw_users = self.db.query_get_username()
         for obj in raw_users:
-            self.users_map[obj['userid']] = obj['name']
+            self.cache.set(obj['userid'], obj['name'])
 
     def get_username(self, user_id):
-        return self.users_map[user_id]
+        return self.cache.get(user_id)
 
     def get_sort_metrics_by_chatid(self, chat_id, limit):
         return self.db.query_sort_metrics_by_chatid(chat_id, limit)
