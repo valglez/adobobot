@@ -13,9 +13,7 @@ jobs:
       - name: Setup Python Version
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
-      - name: Install Python dependencies
-        run: python -m pip install --upgrade pip requests
+          python-version: 3.7
       - name: Run tests
         run: python3 tests/**/*.py 
       - name: Build Docker image
