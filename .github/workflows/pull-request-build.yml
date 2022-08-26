@@ -17,6 +17,6 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install --upgrade pip requests
       - name: Run tests
-        run: python3 tests/cache/test_cache.py 
+        run: python3 tests/**/*.py 
       - name: Build Docker image
         run: docker build . --file Dockerfile
