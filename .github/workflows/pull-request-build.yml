@@ -10,5 +10,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Python Version
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Run tests
+        run: python3 tests/**/*.py 
       - name: Build Docker image
         run: docker build . --file Dockerfile
