@@ -8,8 +8,7 @@ class BotControllers:
     
     def get_username_by_userid(self, user_id):
         raw_users = self.db.query_get_username_by_userid(user_id)
-        for user in raw_users:
-            return user['name']
+        return raw_users[0]['name']
 
     def load_users(self):
         raw_users = self.db.query_get_username()
@@ -24,12 +23,12 @@ class BotControllers:
     def get_sort_metrics_by_chatid(self, chat_id, limit):
         return self.db.query_sort_metrics_by_chatid(chat_id, limit)
 
-    def get_docs_for_this_user_in_this_chat(self, chat_id, user_id):
+    def get_docs_for_user_chatid(self, chat_id, user_id):
         return self.db.query_check_user_docs_by_chatid(chat_id, user_id)
     
     def get_ranking_metrics_in_this_chat(self, title, chat_id, user_id, limit):
         chat_title = title or 'este chat'
-        if self.get_docs_for_this_user_in_this_chat(chat_id, user_id):
+        if self.get_docs_for_user_chatid(chat_id, user_id):
             response = 'TOP de mensajes en ' + chat_title + ':\n'
             for idx, id in enumerate(self.get_sort_metrics_by_chatid(chat_id, limit)):
                 idx += 1
@@ -49,7 +48,7 @@ class BotControllers:
             return response
 
     def get_total_users_metrics_in_this_chat(self, chat_id, user_id, limit):
-        if self.get_docs_for_this_user_in_this_chat(chat_id, user_id):
+        if self.get_docs_for_user_chatid(chat_id, user_id):
             response = ''
             for id in self.get_sort_metrics_by_chatid(chat_id, limit):
                 name = self.get_username(id['userid']) or 'Anonymous'
@@ -60,11 +59,11 @@ class BotControllers:
             return response
 
     def get_top_user_metrics_in_this_chat(self, chat_id, user_id, limit):
-        if self.get_docs_for_this_user_in_this_chat(chat_id, user_id):
+        if self.get_docs_for_user_chatid(chat_id, user_id):
             response = ''
-        for id in self.get_sort_metrics_by_chatid(chat_id, limit):
-            name = self.get_username(id['userid']) or 'Anonymous'
-            response += name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
+            for id in self.get_sort_metrics_by_chatid(chat_id, limit):
+                name = self.get_username(id['userid']) or 'Anonymous'
+                response += name + ' ha sido el usuario más activo con un total de ' + str(id['msgs']) + ' mensajes.'
             return response
         else:
             response = 'Sin registros. Debes escribir al menos una vez en este chat para tener acceso a las métricas.'
