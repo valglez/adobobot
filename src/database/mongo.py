@@ -7,11 +7,14 @@ class Database:
         self.col_logs = self.db[db_col[1:4]]
         self.col_users = self.db[db_col[5:10]]
         
-    def query_check_registred_users(self, chat_id, user_id):
+    def query_check_user_docs_by_chatid(self, chat_id, user_id):
         return self.col_logs.count_documents({'chatid': chat_id, 'userid': user_id})
 
     def query_get_username(self):
         return self.col_users.find()
+    
+    def query_get_username_by_userid(self, user_id):
+        return self.col_users.find({'userid': user_id})
 
     def query_sort_metrics_by_chatid(self, chat_id, limit):
         pipeline = (

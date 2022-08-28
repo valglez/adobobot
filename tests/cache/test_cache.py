@@ -13,6 +13,12 @@ class TestCache(unittest.TestCase):
 
     def test_get_size(self):
         self.assertEqual(self.users_cache.get_size(), 2)
+
+    def test_update_user(self):
+        if self.users_cache.get(1) != 'usuario1':
+            self.users_cache.set(1, 'usuario1')
+            return self.users_cache.get(1)
+        self.assertEqual(self.users_cache.get(1), 'usuario1')
        
     def test_get_size_after_insert(self):
         self.users_cache.set(3, 'user3')
